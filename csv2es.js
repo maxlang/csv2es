@@ -28,7 +28,7 @@ var bulk = [];
 
 console.log("reading");
 csv()
-    .from(fromStream, { delimiter: seperator, escape:'' })
+    .from(fromStream, { delimiter: seperator, escape:null })
 //.to.stream(process.stdout)
     .transform( function(row){
       if (!headers) {
@@ -51,8 +51,10 @@ csv()
           type: type,
           index: index
         }, function (err, resp) {
-          console.log("ES err", err);
-          console.log("ES resp", resp);
+          if (err) {
+            console.log("ES err", err);
+          }
+//          console.log("ES resp", resp);
         });
         bulk = [];
 
@@ -67,8 +69,10 @@ csv()
           type: type,
           index: index
       }, function (err, resp) {
-        console.log("ES err", err);
-        console.log("ES resp", resp);
+        if (err) {
+          console.log("ES err", err);
+        }
+//          console.log("ES resp", resp);
       });
       bulk = []
       process.exit();
