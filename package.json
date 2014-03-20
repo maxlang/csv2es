@@ -1,0 +1,21 @@
+{
+  "author": "Max Lang",
+  "name": "csv2es",
+  "version": "0.0.0",
+  "homepage": "",
+  "licenses": {
+    "type": "",
+    "url": ""
+  },
+  "bugs": "https://github.com/maxlang/csv2es/issues",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:maxlang/csv2es.git"
+  },
+  "dependencies": {
+    "lodash": "~2.4.1",
+    "csv": "~0.3.7",
+    "elasticsearch": "~1.5.14"
+  },
+  "devDependencies": {}
+}
