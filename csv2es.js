@@ -39,7 +39,7 @@ csv()
 //      console.log("rr", row)
       return _.object(headers, row);
     })
-    .on('record', function(row,index){
+    .on('record', function(row,i){
       bulk.push({ index:  { } })
       bulk.push(row);
 //      console.log("curbulk", bulk)
