@@ -4,7 +4,7 @@ var _ = require('lodash');
 var fs = require('fs');
 var elasticsearch = require('elasticsearch');
 var client = new elasticsearch.Client({
-  host: 'localhost:9200',
+  host: 'http://localhost:9200',
   log: 'error',
   apiVersion: '1.0'
 });
@@ -28,7 +28,7 @@ var bulk = [];
 
 console.log("reading");
 csv()
-    .from(fromStream, { delimiter: seperator, escape:null })
+    .from(fromStream, { delimiter: seperator, quote:''})
 //.to.stream(process.stdout)
     .transform( function(row){
       if (!headers) {
@@ -73,9 +73,9 @@ csv()
           console.log("ES err", err);
         }
 //          console.log("ES resp", resp);
+        process.exit()
       });
       bulk = []
-      process.exit();
     })
 //    .on('data', function(d) {
 //
