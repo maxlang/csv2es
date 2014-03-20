@@ -5,7 +5,7 @@ var fs = require('fs');
 var elasticsearch = require('elasticsearch');
 var client = new elasticsearch.Client({
   host: 'localhost:9200',
-  log: 'info',
+  log: 'warn',
   apiVersion: '1.0'
 });
 
@@ -71,6 +71,7 @@ csv()
         console.log("ES resp", resp);
       });
       bulk = []
+      process.exit();
     })
 //    .on('data', function(d) {
 //
