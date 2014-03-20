@@ -81,5 +81,5 @@ csv()
 //
 //    })
     .on('error', function(error){
-      console.log(error.message);
+      console.log("node error", error.message);
     });
