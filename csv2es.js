@@ -5,7 +5,7 @@ var fs = require('fs');
 var elasticsearch = require('elasticsearch');
 var client = new elasticsearch.Client({
   host: 'localhost:9200',
-  log: 'trace',
+  log: 'info',
   apiVersion: '1.0'
 });
 
@@ -42,9 +42,9 @@ csv()
     .on('record', function(row,index){
       bulk.push({ index:  { } })
       bulk.push(row);
-      console.log("curbulk", bulk)
-      if (bulk.length > 1000) {
-        console.log("writing 1000 elements to ES")
+//      console.log("curbulk", bulk)
+      if (bulk.length / 2 > bulkSize) {
+        console.log("writing " + bulk.length/2 + " elements to ES")
         client.bulk({
           body: bulk,
           refresh: false,
@@ -60,7 +60,7 @@ csv()
 
     })
     .on('end', function(){
-      console.log("writing " + bulk.length + " elements to ES");
+      console.log("writing " + bulk.length/2 + " elements to ES");
       client.bulk({
         body: bulk,
           refresh: false,
