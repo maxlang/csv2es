@@ -15,7 +15,8 @@
   "dependencies": {
     "lodash": "~2.4.1",
     "csv": "~0.3.7",
-    "elasticsearch": "~1.5.14"
+    "elasticsearch": "~1.5.14",
+    "minimist": "0.0.8"
   },
   "devDependencies": {}
 }
