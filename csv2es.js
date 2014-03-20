@@ -5,7 +5,7 @@ var fs = require('fs');
 var elasticsearch = require('elasticsearch');
 var client = new elasticsearch.Client({
   host: 'localhost:9200',
-  log: 'warn',
+  log: 'error',
   apiVersion: '1.0'
 });
 
