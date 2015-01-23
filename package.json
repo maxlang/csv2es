@@ -13,10 +13,10 @@
     "url": "git@github.com:maxlang/csv2es.git"
   },
   "dependencies": {
+    "csv": "^0.4.1",
+    "elasticsearch": "^3.1.1",
     "lodash": "~2.4.1",
-    "csv": "~0.3.7",
-    "elasticsearch": "~1.5.14",
-    "minimist": "0.0.8"
+    "minimist": "^1.1.0"
   },
   "devDependencies": {}
 }

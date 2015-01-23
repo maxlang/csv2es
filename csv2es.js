@@ -6,7 +6,7 @@ var elasticsearch = require('elasticsearch');
 var client = new elasticsearch.Client({
   host: 'http://localhost:9200',
   log: 'error',
-  apiVersion: '1.0'
+  apiVersion: '1.4'
 });
 
 
@@ -29,7 +29,9 @@ var bulk = [];
 
 var requestQueue = [];
 
-function performRequest()
+function performRequest()  {
+
+}
 
 var pending = 0;
 var done = false;
@@ -48,19 +50,18 @@ csv()
       return _.object(headers, row);
     })
     .on('record', function(row,i){
-      bulk.push({ index:  { } })
+      bulk.push({ index:  { } });
       bulk.push(row);
 //      console.log("curbulk", bulk)
-      pending ++
       if (bulk.length / 2 > bulkSize) {
-        console.log("writing " + bulk.length/2 + " elements to ES")
+        pending ++;
+        console.log("writing " + bulk.length/2 + " elements to ES");
         client.bulk({
           body: bulk,
           refresh: false,
           type: type,
           index: index
         }, function (err, resp) {
-          pending --;
           if (err) {
             console.log("ES err", err);
           }
