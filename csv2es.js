@@ -27,11 +27,11 @@ var concurrent = argv.c || argv.concurrent || 5;
 
 var bulk = [];
 
-var requestQueue = [];
-
-function performRequest()  {
-
-}
+//var requestQueue = [];
+//
+//function performRequest()  {
+//
+//}
 
 var pending = 0;
 var done = false;
