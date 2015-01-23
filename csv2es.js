@@ -23,8 +23,16 @@ var index = argv.i || argv.index || "csv2es";
 var type = argv.t || argv.type || "csv2es";
 
 var bulkSize = argv.b || argv.bulk || 1000;
+var concurrent = argv.c || argv.concurrent || 5;
 
 var bulk = [];
+
+var requestQueue = [];
+
+function performRequest()
+
+var pending = 0;
+var done = false;
 
 console.log("reading");
 csv()
@@ -43,6 +51,7 @@ csv()
       bulk.push({ index:  { } })
       bulk.push(row);
 //      console.log("curbulk", bulk)
+      pending ++
       if (bulk.length / 2 > bulkSize) {
         console.log("writing " + bulk.length/2 + " elements to ES")
         client.bulk({
@@ -51,10 +60,15 @@ csv()
           type: type,
           index: index
         }, function (err, resp) {
+          pending --;
           if (err) {
             console.log("ES err", err);
           }
 //          console.log("ES resp", resp);
+          pending--;
+          if (pending === 0 && done) {
+            process.exit()
+          }
         });
         bulk = [];
 
@@ -73,7 +87,13 @@ csv()
           console.log("ES err", err);
         }
 //          console.log("ES resp", resp);
-        process.exit()
+        pending--;
+        if (pending === 0) {
+          process.exit()
+        } else {
+          done = true;
+        }
+
       });
       bulk = []
     })
