@@ -5,7 +5,7 @@ var fs = require('fs');
 var elasticsearch = require('elasticsearch');
 var client = new elasticsearch.Client({
   host: 'http://localhost:9200',
-  log: 'error',
+  log: 'trace',
   apiVersion: '1.4'
 });
 
@@ -37,70 +37,93 @@ var pending = 0;
 var done = false;
 
 console.log("reading");
-csv()
-    .from(fromStream, { delimiter: seperator, quote:''})
-//.to.stream(process.stdout)
-    .transform( function(row){
-      if (!headers) {
-        headers = row;
-        return;
-//  headers =  _.times(row.length, function(n) { return "field_" + n;})
-      }
-//      console.log("rr", row)
-      return _.object(headers, row);
-    })
-    .on('record', function(row,i){
-      bulk.push({ index:  { } });
-      bulk.push(row);
+
+var parser = csv.parse({ delimiter: seperator, quote:''});
+
+fromStream.on('readable', function() {
+  while(data = fromStream.read()){
+    console.log("read data", data);
+    parser.write(data);
+  }
+  transformer.end();
+});
+
+var transformer = csv.transform(function(row) {
+  console.log("transforming row", row);
+  if (!headers) {
+    headers = row;
+    return;
+  }
+  return _.object(headers, row);
+});
+
+parser.on('readable', function(){
+  while(data = parser.read()){
+    console.log("parsed data", data);
+    transformer.write(data);
+  }
+});
+
+transformer.on('readable', function(){
+  var row;
+  while(row = transformer.read()){
+    console.log("transformed data", row);
+    bulk.push({ index:  { } });
+    bulk.push(row);
 //      console.log("curbulk", bulk)
-      if (bulk.length / 2 > bulkSize) {
-        pending ++;
-        console.log("writing " + bulk.length/2 + " elements to ES");
-        client.bulk({
-          body: bulk,
-          refresh: false,
-          type: type,
-          index: index
-        }, function (err, resp) {
-          if (err) {
-            console.log("ES err", err);
-          }
-//          console.log("ES resp", resp);
-          pending--;
-          if (pending === 0 && done) {
-            process.exit()
-          }
-        });
-        bulk = [];
-
-      }
-
-    })
-    .on('end', function(){
+    if (bulk.length / 2 > bulkSize) {
+      pending ++;
       console.log("writing " + bulk.length/2 + " elements to ES");
       client.bulk({
         body: bulk,
-          refresh: false,
-          type: type,
-          index: index
+        refresh: false,
+        type: type,
+        index: index
       }, function (err, resp) {
         if (err) {
           console.log("ES err", err);
         }
 //          console.log("ES resp", resp);
         pending--;
-        if (pending === 0) {
+        console.log("exit?", pending, done);
+        if (pending <= 0 && done) {
           process.exit()
-        } else {
-          done = true;
         }
-
       });
-      bulk = []
-    })
+      bulk = [];
+
+    }
+  }
+  console.log("transformer done");
+});
+
+    transformer.on('finish', function(){
+  console.log("writing " + bulk.length/2 + " elements to ES");
+      pending ++;
+  client.bulk({
+    body: bulk,
+    refresh: false,
+    type: type,
+    index: index
+  }, function (err, resp) {
+    if (err) {
+      console.log("ES err", err);
+    }
+//          console.log("ES resp", resp);
+    pending--;
+    console.log("exit?", pending);
+    if (pending <= 0) {
+      process.exit()
+    } else {
+      done = true;
+    }
+
+  });
+  bulk = []
+}) ;
 //    .on('data', function(d) {
 //
 //    })
-    .on('error', function(error){
+    transformer.on('error', function(error){
       console.log("node error", error.message);
     });
